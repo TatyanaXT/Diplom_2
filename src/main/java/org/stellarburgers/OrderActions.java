@@ -4,14 +4,29 @@ import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
 
 public class OrderActions {
 
     public static final String BASE_URI = "https://stellarburgers.education-services.ru";
 
+
+    @Step("Send GET request to /api/ingredients")
+    public List<String> getAllIngredientIds() {
+        return given()
+                .baseUri(BASE_URI)
+                .when()
+                .get("/api/ingredients")
+                .then()
+                .extract()
+                .path("data._id");
+    }
+
     @Step("Send POST request to /api/orders")
-    public Response createOrder(String token, String json) {
+    public Response createOrder(String token, List<String> ingredientIds) {
+        Order json = new Order(ingredientIds);
 
         return given()
                 .contentType(ContentType.JSON)

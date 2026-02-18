@@ -4,6 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.stellarburgers.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class CreateOrderTest {
 
     private String accessToken;
@@ -12,16 +16,16 @@ public class CreateOrderTest {
     OrderActions orderActions = new OrderActions();
     OrderChecks orderChecks = new OrderChecks();
 
-    public static final String CORRECT_JSON = "{\n\"ingredients\": [\"61c0c5a71d1f82001bdaaa70\",\"61c0c5a71d1f82001bdaaa71\",\"61c0c5a71d1f82001bdaaa6e\"]\n}";
-    public static final String INVALID_HASH = "{\n\"ingredients\": [\"60d3b41abdacab0026a733c6\",\"609646e4dc916e00276b2870\"]\n}";
-    public static final String EMPTY_INGREDIENTS = "{\n\"ingredients\": []\n}";
+    List<String> INVALID_HASH = Arrays.asList("60d3b41abdacab0026a733c6", "609646e4dc916e00276b2870");
 
 
     @Test
     @DisplayName("Создание заказа неавторизованным пользователем")
     public void createOrderUnauthorizedTest() {
+        List<String> ingredientIds = orderActions.getAllIngredientIds();
+        List<String> orderIngredients = ingredientIds.subList(0, 2);
 
-        Response response = orderActions.createOrder("", CORRECT_JSON);
+        Response response = orderActions.createOrder("", orderIngredients);
         orderChecks.checkCreationOrderSuccess(response);
 
     }
@@ -35,7 +39,10 @@ public class CreateOrderTest {
         Response responseUser = userActions.createUser(user);
         accessToken = userActions.getAccessToken(responseUser);
 
-        Response response = orderActions.createOrder(accessToken, CORRECT_JSON);
+        List<String> ingredientIds = orderActions.getAllIngredientIds();
+        List<String> orderIngredients = ingredientIds.subList(0, 2);
+
+        Response response = orderActions.createOrder(accessToken, orderIngredients);
         orderChecks.checkCreationOrderSuccess(response);
     }
 
@@ -43,7 +50,7 @@ public class CreateOrderTest {
     @DisplayName("Создание заказа без ингредиентов")
     public void createOrderWithoutIngredientTest() {
 
-        Response response = orderActions.createOrder("", EMPTY_INGREDIENTS);
+        Response response = orderActions.createOrder("", Collections.emptyList());
         orderChecks.checkCreationOrderWithoutIngredient(response);
 
     }

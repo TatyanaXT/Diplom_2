@@ -45,7 +45,9 @@ public class CreateUserTest {
         String email = actions.generateUserEmail();
         User user = new User(email, "str0nGPasw0rd", "Тестовый пользователь");
 
-        actions.createUser(user);
+        Response responseCreated = actions.createUser(user);
+        accessToken = actions.getAccessToken(responseCreated);
+
         Response response = actions.createUser(user);
         checks.checkCreationUserExist(response);
 
@@ -55,7 +57,7 @@ public class CreateUserTest {
     @ParameterizedTest
     @DisplayName("Создание пользователя без заполнения одного из обязательных полей")
     @MethodSource("createUserParameters")
-    public void createOrderTest(String email, String password, String name) {
+    public void createUserWithoutFieldTest(String email, String password, String name) {
         User user = new User(email, password, name);
 
         Response response = actions.createUser(user);

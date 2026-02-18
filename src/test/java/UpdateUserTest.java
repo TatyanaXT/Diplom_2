@@ -15,32 +15,30 @@ public class UpdateUserTest {
 
     private String accessToken;
 
-    UserActions actions = new UserActions();
+    static UserActions actions = new UserActions();
     UserChecks checks = new UserChecks();
 
     private static Stream<Arguments> updateUserParameters() {
+        String email = actions.generateUserEmail();
         return Stream.of(
-                Arguments.of(1, "str0nGPasw0rd", "Тестовый пользователь"),
-                Arguments.of(0, "newstr0nGPasw0rd", "Тестовый пользователь"),
-                Arguments.of(0, "str0nGPasw0rd", "Самый классный пользователь")
+                Arguments.of("email_for_my_tests@ya.ru", "str0nGPasw0rd", "Тестовый пользователь"),
+                Arguments.of(email, "newstr0nGPasw0rd", "Тестовый пользователь"),
+                Arguments.of(email, "str0nGPasw0rd", "Самый классный пользователь")
         );
     }
 
     @ParameterizedTest
     @DisplayName("Обновление данных пользователя")
     @MethodSource("updateUserParameters")
-    public void updateUserParametersTest(int emailFlag, String password, String name) {
+    public void updateUserParametersTest(String newEmail, String password, String name) {
         String email = actions.generateUserEmail();
         User user = new User(email, "str0nGPasw0rd", "Тестовый пользователь");
 
         Response responseCreate = actions.createUser(user);
         accessToken = actions.getAccessToken(responseCreate);
 
-        if (emailFlag == 1) {
-            email = "email_for_my_tests@ya.ru";
-        }
 
-        User newDataUser = new User(email, password, name);
+        User newDataUser = new User(newEmail, password, name);
 
         Response responseUpdate = actions.updateUser(newDataUser, accessToken);
         checks.checkUpdateUserSuccess(responseUpdate);
@@ -49,18 +47,14 @@ public class UpdateUserTest {
     @ParameterizedTest
     @DisplayName("Обновление данных без авторизации")
     @MethodSource("updateUserParameters")
-    public void updateUserUnauthorisedTest(int emailFlag, String password, String name) {
+    public void updateUserUnauthorisedTest(String newEmail, String password, String name) {
         String email = actions.generateUserEmail();
         User user = new User(email, "str0nGPasw0rd", "Тестовый пользователь");
 
         Response responseCreate = actions.createUser(user);
         accessToken = actions.getAccessToken(responseCreate);
 
-        if (emailFlag == 1) {
-            email = "email_for_my_tests@ya.ru";
-        }
-
-        User newDataUser = new User(email, password, name);
+        User newDataUser = new User(newEmail, password, name);
 
         Response responseUpdate = actions.updateUser(newDataUser, "");
         checks.checkUpdateUserUnauthorised(responseUpdate);
@@ -73,6 +67,5 @@ public class UpdateUserTest {
             actions.deleteUser(accessToken);
         }
     }
-
 
 }

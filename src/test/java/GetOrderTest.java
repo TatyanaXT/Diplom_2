@@ -7,6 +7,8 @@ import org.stellarburgers.OrderChecks;
 import org.stellarburgers.User;
 import org.stellarburgers.UserActions;
 
+import java.util.List;
+
 public class GetOrderTest {
 
     private String accessToken;
@@ -36,7 +38,10 @@ public class GetOrderTest {
         Response responseUser = userActions.createUser(user);
         accessToken = userActions.getAccessToken(responseUser);
 
-        orderActions.createOrder(accessToken, CORRECT_JSON);
+        List<String> ingredientIds = orderActions.getAllIngredientIds();
+        List<String> orderIngredients = ingredientIds.subList(0, 2);
+
+        orderActions.createOrder(accessToken, orderIngredients);
 
         Response response = orderActions.getOrder(accessToken);
         orderChecks.checkGetOrdersSuccess(response);
